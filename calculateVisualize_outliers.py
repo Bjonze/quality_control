@@ -14,10 +14,14 @@ import shutil
 def main(sdf_dir, json_dir, out_dir, q_low, q_high):
     #we first need to actually calculate the outliers
     #load the json first:
-    with open(json_dir) as f_in:
-        json_file = json.load(f_in)
-        
-    df = pd.DataFrame(json_file)
+    if os.path.endswith(json_dir, ".json"):
+        with open(json_dir) as f_in:
+            json_file = json.load(f_in)
+        df = pd.DataFrame(json_file)
+
+    elif os.path.endswith(json_dir, ".txt"):
+        df = pd.read_csv(json_dir, sep=",", header=0)
+    
     numeric_cols = df.select_dtypes(include=[np.number]).columns
     
     df_norm = df.copy()
@@ -44,7 +48,7 @@ def main(sdf_dir, json_dir, out_dir, q_low, q_high):
 
     # Process only records that are flagged as an outlier in at least one metric.
     for record in tqdm(norm_list, total=len(norm_list), desc="Creating outlier images"): #TODO: If more than 2 outliers are present (1 outlier is too few)
-        filename = record["filename"]
+        filename = record["scan_name"]
         name_no_ext = os.path.splitext(filename)[0]
         
         # Check if this record is an outlier in any numeric key (except 'estimated_bifurcations')

@@ -19,18 +19,21 @@ from matplotlib.patches import Ellipse
 # 1. Data Loading and Preprocessing
 # ------------------------------
 
-json_path = "/work3/bmsha/data/shape_measures_lq_unNorm.json"
-fig_save_dir = "/work3/bmsha/quality_control/figures"
+laa_measures_path = "/data/Data/LAAAnalysis-08-04-2025/info/laa_measures-statistics-04-04-2025-19-19-22_final_measurements.csv"
+fig_save_dir = "/storage/code/quality_control/figures"
 os.makedirs(fig_save_dir, exist_ok=True)
-outlier_txt = "/work3/bmsha/quality_control/outlier_filenames.txt"
+outlier_txt = "/storage/code/quality_control/outlier_filenames.txt"
 
-with open(json_path, "r") as f:
-    data = json.load(f)
+if laa_measures_path.endswith(".json"):
+    with open(laa_measures_path, "r") as f:
+        data = json.load(f)
+    df = pd.DataFrame(data)
+elif laa_measures_path.endswith(".csv"):
+    df = pd.read_csv(laa_measures_path, sep=",", header=0)
 
-df = pd.DataFrame(data)
 df = df.drop(columns=["estimated_bifurcations"], errors="ignore")
-filenames = df["filename"]
-df_features = df.drop(columns=["filename"])
+filenames = df["scan_name"]
+df_features = df.drop(columns=["scan_name", "dims_x", "dims_y", "dims_z", "Unnamed: 46"], errors="ignore")
 df_features = df_features.fillna(df_features.median())
 
 scaler = StandardScaler()

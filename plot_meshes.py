@@ -8,6 +8,9 @@ from skimage.measure import marching_cubes
  
 def nifisdf2vtk(nii_sdf_path, out_vtk_path):
     sdf = sitk.GetArrayFromImage(sitk.ReadImage(nii_sdf_path))
+    # class 8 is foreground and rest is background
+    sdf = np.where(sdf == 8, 1, 0)
+    # Convert the SDF to a binary volume
     verts, faces, _, _ = marching_cubes(sdf, level=0)
     #save the sdf as a .vtk mesh 
     points = vtk.vtkPoints()
